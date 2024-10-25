@@ -7,7 +7,7 @@ import ShareButton from "../component/Sharebutton";
 import ScrollToTopButton from "../component/ScrollTotop";
 import { uniqueNamesGenerator, Config, adjectives, animals } from "unique-names-generator"; // Import uniqueNamesGenerator
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft,Loader } from "lucide-react";
 interface Comment {
     _id: string;
     content: string;
@@ -34,7 +34,8 @@ const DetailPost = () => {
     // const [activePostId, setActivePostId] = useState<string | null>(null);
     const [reloadTrigger, setReloadTrigger] = useState(false);
     // const [posts, setPosts] = useState([]);
-    const [searchQuery, setSearchQuery] = useState<string>("")
+    const [searchQuery, setSearchQuery] = useState<string>("");
+    const [isLoading,setIsLoading] = useState(false);
 
 
     const generateAvatarUrl = (seed: string) => {
@@ -59,6 +60,7 @@ const DetailPost = () => {
 
     useEffect(() => {
         const fetchPosts = async () => {
+            setIsLoading(true);
             try {
                 const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/posts`);
                 const posts: Post[] = response.data; // Assuming your API returns an array of posts
@@ -67,6 +69,8 @@ const DetailPost = () => {
 
             } catch (err) {
                 console.error('Error fetching posts:', err);
+            }finally{
+                setIsLoading(false);
             }
         };
 
@@ -147,6 +151,12 @@ const DetailPost = () => {
                 </div>
 
                 {/* Main feed */}
+                {isLoading?(
+                    <div className="flex flex-col items-center mt-10">
+                    <Loader className="text-orange-500 animate-spin" size={48} />
+                    <p className="text-center text-lg text-gray-500 mt-4 animate-pulse">Loading...</p>
+                  </div>
+                ):(
                 <div className="mt-24 w-full flex flex-col items-center">
                     <div className=" w-full lg:w-1/2 flex justify-start "><Link to='/' className="text-orange-400 flex justify-between gap-3 font-semibold  rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"><ArrowLeft /> Back to Home </Link>
                     </div>
@@ -282,9 +292,10 @@ const DetailPost = () => {
 
                         </div>
                     ) : (
-                        <h1>No post</h1>
+                        <h1>No posts</h1>
                     )}
                 </div>
+                )}
             </div>
             <ScrollToTopButton />
         </div>
@@ -293,6 +304,9 @@ const DetailPost = () => {
 };
 
 export default DetailPost;
+
+
+
 
 
 
